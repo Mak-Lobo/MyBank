@@ -1,9 +1,34 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_bank/pages/view.dart';
 import 'package:my_bank/pages/manage_account/login.dart';
 import 'package:my_bank/pages/manage_account/register.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+import 'service_control/user_control.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // getting configurations from file
+  final config = await rootBundle.loadString('configurations/main.json');
+  Map configJson = jsonDecode(config);
+
+  // initializing Supabase
+  await Supabase.initialize(
+      url: configJson['SUPERBASE_URL'],
+      anonKey: configJson['SUPERBASE_API_KEY']);
+
+  // 'UserControl' singleton
+  GetIt.instance.registerSingleton<UserControl>(UserControl());
+
+  // 'SharedPreferences' singleton
+  final prefs = await SharedPreferences.getInstance();
+  GetIt.instance.registerSingleton<SharedPreferences>(prefs);
+
   runApp(const MyApp());
 }
 

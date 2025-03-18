@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../service_control/user_control.dart';
+import 'package:get_it/get_it.dart';
+import '../../models/users_register.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -8,112 +12,202 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  GlobalKey<FormFieldState> formKey = GlobalKey<FormFieldState>();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   double? width, height;
+  bool isHidden = true;
+  late TextEditingController lastNameController,
+      firstNameController,
+      emailController,
+      phoneNumberController,
+      pinController;
+  UserControl? userControl;
+  Color? borderColor, snackbarColor;
+
+  final supabase = Supabase.instance.client;
+
+  void initState() {
+    super.initState();
+    userControl = GetIt.instance.get<UserControl>();
+
+    firstNameController = TextEditingController();
+    lastNameController = TextEditingController();
+    emailController = TextEditingController();
+    phoneNumberController = TextEditingController();
+    pinController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    phoneNumberController.dispose();
+    pinController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
+    borderColor = Theme.of(context).colorScheme.primary;
+    snackbarColor = Theme.of(context).colorScheme.secondary;
 
     return SafeArea(
       child: Scaffold(
-        body: Column(
+        resizeToAvoidBottomInset: true,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Welcome to MyBank.',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Text('Join us today by registering for our services.',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(decoration: TextDecoration.underline)),
+                const SizedBox(
+                  height: 30,
+                ),
+                registrationForm(context),
+                linkToLogin(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget registrationForm(BuildContext context) {
+    return Container(
+      height: height! * 0.6,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context).colorScheme.inversePrimary,
+        border: Border.all(
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Form(
+        key: formKey,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Welcome to MyBank.',
-              style: Theme.of(context).textTheme.labelLarge,
+            nameRow(),
+            TextFormField(
+              controller: phoneNumberController,
+              decoration: InputDecoration(
+                labelText: 'Phone number',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
+                prefixIcon: const Icon(Icons.phone),
+              ),
+              validator: (_phoneNumber) {
+                RegExp numberFormat = RegExp(r'^[0-9]+$');
+                if (_phoneNumber!.isEmpty ||
+                    !numberFormat.hasMatch(_phoneNumber)) {
+                  return 'Please enter your phone number';
+                }
+                return null;
+              },
             ),
-            Text('Join us today by registering for our services.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall!
-                    .copyWith(decoration: TextDecoration.underline)),
-            Container(
-              height: height! * 0.5,
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Theme.of(context).colorScheme.inversePrimary,
-                border: Border.all(
-                  style: BorderStyle.solid,
+            TextFormField(
+              controller: emailController,
+              decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  prefixIcon: const Icon(Icons.email_rounded)),
+              validator: (_email) {
+                RegExp emailFormat =
+                    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                if (_email!.isEmpty || !emailFormat.hasMatch(_email)) {
+                  return 'Please enter a valid email';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: pinController,
+              decoration: InputDecoration(
+                labelText: 'PIN number',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                prefixIcon: const Icon(Icons.password_rounded),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isHidden = !isHidden;
+                    });
+                  },
+                  icon: (isHidden)
+                      ? const Icon(Icons.visibility_off)
+                      : const Icon(Icons.visibility),
                 ),
               ),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Full name',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                          prefixIcon: const Icon(Icons.person)),
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'Phone number',
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        prefixIcon: const Icon(Icons.phone),
-                      ),
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Email',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary),
-                          ),
-                          prefixIcon: const Icon(Icons.email_rounded)),
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'PIN number',
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        prefixIcon: const Icon(Icons.password_rounded),
-                        suffixIcon: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.visibility_off),
-                        ),
-                      ),
-                      obscureText: true,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'Re-enter PIN number',
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        prefixIcon: const Icon(Icons.password_rounded),
-                        suffixIcon: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.visibility_off),
-                        ),
-                      ),
-                    ),
-                    register(),
-                    linkToLogin(),
-                  ],
+              obscureText: isHidden,
+              validator: (_pin) {
+                RegExp pinFormat = RegExp(r'^[0-9]');
+                if (_pin!.isEmpty || !pinFormat.hasMatch(_pin)) {
+                  return 'Please enter your PIN number';
+                } else if (_pin.length < 4) {
+                  return 'PIN number must be at least 4 digits';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Re-enter PIN number',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                prefixIcon: const Icon(Icons.password_rounded),
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: (isHidden)
+                      ? const Icon(Icons.visibility_off)
+                      : const Icon(Icons.visibility),
                 ),
               ),
+              obscureText: isHidden,
+              validator: (_pin) {
+                RegExp pinFormat = RegExp(r'^[0-9]');
+                if (_pin!.isEmpty || !pinFormat.hasMatch(_pin)) {
+                  return 'Please enter your PIN number';
+                }
+                if (_pin != pinController.text) {
+                  return 'PIN numbers do not match';
+                }
+                return null;
+              },
             ),
+            Align(
+              alignment: Alignment.topRight,
+              child: forgotPin(),
+            ),
+            register(context),
           ],
         ),
       ),
@@ -121,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // register button
-  Widget register() {
+  Widget register(BuildContext context) {
     return FractionallySizedBox(
       widthFactor: 0.7,
       child: Container(
@@ -130,13 +224,14 @@ class _RegisterPageState extends State<RegisterPage> {
           color: Theme.of(context).colorScheme.primaryContainer,
         ),
         child: TextButton(
-            onPressed: () {},
-            child: Text(
-              'Register now',
-              style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-            )),
+          onPressed: registerUser,
+          child: Text(
+            'Register now',
+            style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+          ),
+        ),
       ),
     );
   }
@@ -167,5 +262,110 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ],
     );
+  }
+
+  // name row
+  Widget nameRow() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        TextFormField(
+          controller: firstNameController,
+          decoration: InputDecoration(
+            labelText: 'First name',
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            prefixIcon: const Icon(Icons.person),
+          ),
+        ),
+        SizedBox(
+          height: height! * 0.005,
+        ),
+        TextFormField(
+          controller: lastNameController,
+          decoration: InputDecoration(
+            labelText: 'Last name',
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            prefixIcon: const Icon(Icons.person),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // forgot pin link
+  Widget forgotPin() {
+    return GestureDetector(
+      onTap: () {},
+      child: Text(
+        'Forgot PIN?',
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              decoration: TextDecoration.underline,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
+    );
+  }
+
+  // register function
+  Future<void> registerUser() async {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
+
+      try {
+        final userReg = await supabase.auth.signUp(
+          email: emailController.text,
+          password: pinController.text,
+        );
+
+        final Session? session = userReg.session;
+        final User? user = session?.user;
+
+        // pushing the registered person to the database
+        RegisteredUser newUser = RegisteredUser(
+          firstName: firstNameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          phoneNumber: num.tryParse(phoneNumberController.text) ?? 0,
+          pin: num.tryParse(pinController.text) ?? 0,
+          createdAt: DateTime.now(),
+        );
+
+        await userControl!.createUser(newUser);
+
+        // popup showing registeration success
+        SnackBar(
+          content: const Text('Registration successful!'),
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+            side: BorderSide(
+              color: borderColor!,
+            ),
+          ),
+          elevation: 10,
+          backgroundColor: snackbarColor,
+        );
+
+        navigateToLogin({
+          'email': emailController.text,
+          'pin': pinController.text,
+        });
+      } on AuthException catch (e) {
+        SnackBar(content: Text('${e.message}\nTry again to register.'));
+      }
+    }
+  }
+
+  // navigate to login page
+  void navigateToLogin(Map? registerData) {
+    Navigator.pushReplacementNamed(context, 'login');
   }
 }

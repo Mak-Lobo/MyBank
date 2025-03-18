@@ -43,6 +43,11 @@ dev_dependencies:
   local_auth: ^2.3.0
   text_divider: ^1.0.0
   carousel_slider: ^5.0.0
+  get_it: ^8.0.3
+  font_awesome_flutter: ^10.8.0
+  supabase_flutter: ^2.8.4
+  provider: ^6.1.2
+  shared_preferences: ^2.5.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -64,6 +69,7 @@ flutter:
 
   assets:
     - images/
+    - configurations/main.json
 
   fonts:
     - family: Poppins

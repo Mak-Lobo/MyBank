@@ -37,6 +37,13 @@ class _MainViewState extends State<MainView> {
                 ),
                 centerTitle: true,
                 backgroundColor: Theme.of(context).colorScheme.primary,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    onPressed: () {},
+                  ),
+                ],
               )
             : null,
         body: PageView(
