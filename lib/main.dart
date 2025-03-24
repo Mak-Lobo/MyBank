@@ -1,7 +1,11 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toastification/toastification.dart';
+
 import 'package:my_bank/pages/view.dart';
 import 'package:my_bank/pages/manage_account/login.dart';
 import 'package:my_bank/pages/manage_account/register.dart';
@@ -36,7 +40,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   final textTheme = const TextTheme(
-      labelLarge: TextStyle(
+      titleLarge: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         fontFamily: 'Poppins',
@@ -59,36 +63,43 @@ class MyApp extends StatelessWidget {
         fontSize: 12,
         fontWeight: FontWeight.w400,
         fontFamily: 'Poppins',
+      ),
+      labelSmall: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w400,
+        fontFamily: 'Poppins',
       ));
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+    return ToastificationWrapper(
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+          useMaterial3: true,
           brightness: Brightness.light,
+          textTheme: textTheme,
         ),
-        useMaterial3: true,
-        brightness: Brightness.light,
-        textTheme: textTheme,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
           brightness: Brightness.dark,
+          textTheme: textTheme,
         ),
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        textTheme: textTheme,
+        themeMode: ThemeMode.dark,
+        routes: {
+          '/': (context) => const MainView(),
+          'login': (context) => const LoginPage(),
+          'register': (context) => const RegisterPage(),
+        },
+        initialRoute: 'login',
       ),
-      themeMode: ThemeMode.light,
-      routes: {
-        '/': (context) => const MainView(),
-        'login': (context) => const LoginPage(),
-        'register': (context) => const RegisterPage(),
-      },
-      initialRoute: 'login',
     );
   }
 }

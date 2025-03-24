@@ -169,8 +169,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 RegExp pinFormat = RegExp(r'^[0-9]');
                 if (_pin!.isEmpty || !pinFormat.hasMatch(_pin)) {
                   return 'Please enter your PIN number';
-                } else if (_pin.length < 4) {
-                  return 'PIN number must be at least 4 digits';
+                } else if (_pin.length < 6) {
+                  return 'PIN number must be at least 6 digits';
                 }
                 return null;
               },
@@ -319,6 +319,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> registerUser() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
+      print('Clicked button');
 
       try {
         final userReg = await supabase.auth.signUp(
@@ -341,7 +342,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
         await userControl!.createUser(newUser);
 
-        // popup showing registeration success
+        // popup showing registration success
         SnackBar(
           content: const Text('Registration successful!'),
           shape: RoundedRectangleBorder(
@@ -354,18 +355,10 @@ class _RegisterPageState extends State<RegisterPage> {
           backgroundColor: snackbarColor,
         );
 
-        navigateToLogin({
-          'email': emailController.text,
-          'pin': pinController.text,
-        });
+        Navigator.pushReplacementNamed(context, 'login');
       } on AuthException catch (e) {
         SnackBar(content: Text('${e.message}\nTry again to register.'));
       }
     }
-  }
-
-  // navigate to login page
-  void navigateToLogin(Map? registerData) {
-    Navigator.pushReplacementNamed(context, 'login');
   }
 }

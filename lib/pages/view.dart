@@ -31,7 +31,7 @@ class _MainViewState extends State<MainView> {
             ? AppBar(
                 title: Text(
                   "Welcome",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
                 ),

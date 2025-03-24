@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:my_bank/custom_widgets/cards.dart';
 import 'package:my_bank/custom_widgets/buttons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +13,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    Supabase.instance.client.auth.onAuthStateChange.listen((AuthState data) {
+      final AuthChangeEvent event = data.event;
+      final Session? session = data.session;
+
+      if (event == AuthChangeEvent.signedIn && session != null) {
+        print('User signed in: ${session.user.email}');
+      } else if (event == AuthChangeEvent.signedOut) {
+        print('User signed out');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(

@@ -1,5 +1,3 @@
-import 'package:my_bank/models/users_register.dart';
-
 class UserTranscations {
   final String id;
   final String email;

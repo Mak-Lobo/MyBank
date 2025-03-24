@@ -15,5 +15,29 @@ class UserControl {
   }
 
   // get user
-  
+  Future getCurrentUserData(String accountEmail) {
+    return userDB.select().eq('email', accountEmail).limit(1).single();
+  }
+
+  // confirming email and password upon login
+  Future<bool> confirmUser(String userEmail, int pin) async {
+    try {
+      final userData =
+          await userDB.select().eq('email', userEmail).limit(1).single();
+      if (userData['email'] == userEmail && userData['pin_number'] == pin) {
+        print('Correct credentials');
+        return true;
+      } else {
+        print('Incorrect credentials');
+        return false;
+      }
+    } on PostgrestException catch (e) {
+      print(e.message);
+      return false;
+    }
+  }
+
+  Future userSignOut() async {
+    await Supabase.instance.client.auth.signOut();
+  }
 }

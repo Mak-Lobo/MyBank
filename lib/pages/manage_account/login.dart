@@ -1,11 +1,22 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toastification/toastification.dart';
+
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:local_auth_darwin/local_auth_darwin.dart';
+import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:text_divider/text_divider.dart';
+
+import '../../service_control/user_control.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,14 +30,28 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController? pinController, emailController;
   late final LocalAuthentication auth;
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
-  Map passedData = {};
 
+  Map<String, dynamic> cachedMap = {}; // holds the cached data
+  bool isCached = false; // flag to check if data is cached
+  bool canFingerPrint = false; // using fingerprint to login
+
+  final sharedPrefs = GetIt.instance.get<SharedPreferences>();
+
+  // initializing variables upon page initialzation
   @override
   void initState() {
     super.initState();
     auth = LocalAuthentication();
     pinController = TextEditingController();
     emailController = TextEditingController();
+  }
+
+  // disposing controllers
+  @override
+  void dispose() {
+    pinController!.dispose();
+    emailController!.dispose();
+    super.dispose();
   }
 
   @override
@@ -36,50 +61,59 @@ class _LoginPageState extends State<LoginPage> {
 
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              'Login in to your account',
-              style: Theme.of(context).textTheme.labelLarge,
+        resizeToAvoidBottomInset: true,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 70,
+                ),
+                Text(
+                  'Login in to your account',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 30),
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      border: Border.all(
+                        style: BorderStyle.solid,
+                      )),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        height: height! * 0.25,
+                        child: Form(
+                          key: loginFormKey,
+                          child: pinColumn(),
+                        ),
+                      ),
+                      TextDivider(
+                        text: const Text('OR'),
+                        thickness: 5,
+                        direction: Direction.horizontal,
+                        size: 10,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      SizedBox(
+                        height: height! * 0.3,
+                        child: fingerprintColumn(),
+                      ),
+                      linkToRegister(),
+                    ],
+                  ),
+                )
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.all(15),
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                  border: Border.all(
-                    style: BorderStyle.solid,
-                  )),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    height: height! * 0.2,
-                    child: Form(
-                      key: loginFormKey,
-                      child: pinColumn(),
-                    ),
-                  ),
-                  TextDivider(
-                    text: const Text('OR'),
-                    thickness: 5,
-                    direction: Direction.horizontal,
-                    size: 10,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  SizedBox(
-                    height: height! * 0.3,
-                    child: fingerprintColumn(),
-                  ),
-                  linkToRegister(),
-                ],
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );
@@ -154,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: (canFingerPrint == true) ? redirectToHome : noFingerPrintLogin,
           child: CircleAvatar(
             radius: 75,
             backgroundColor: Colors.transparent,
@@ -203,23 +237,41 @@ class _LoginPageState extends State<LoginPage> {
         await auth.canCheckBiometrics || biometricEnabled;
 
     if (canAuthenticateWithBiometrics) {
-      final bool authenticated = await auth.authenticate(
-        localizedReason: 'Use biometrics to login',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-        ),
-        authMessages: const <AuthMessages>[
-          AndroidAuthMessages(
-            signInTitle: 'Use biometrics to login',
-            cancelButton: 'Cancel',
+      if (cachedMap.isNotEmpty && isCached == true) {
+        await auth.authenticate(
+          localizedReason: 'Use biometrics to login',
+          options: const AuthenticationOptions(
+            biometricOnly: true,
+            stickyAuth: true,
           ),
-          IOSAuthMessages(
-            cancelButton: 'Cancel',
-          ),
-        ],
-      );
+          authMessages: const <AuthMessages>[
+            AndroidAuthMessages(
+              signInTitle: 'Use biometrics to login',
+              cancelButton: 'Cancel',
+            ),
+            IOSAuthMessages(
+              cancelButton: 'Cancel',
+            ),
+          ],
+        );
+      } else {
+        noFingerPrintLogin();
+      }
     }
+  }
+
+  void noFingerPrintLogin() {
+    toastification.show(
+      autoCloseDuration: const Duration(seconds: 4),
+      alignment: Alignment.bottomCenter,
+      title: const Text(
+          'Kindly register first or login in with email and pin if already registered.'),
+      type: const ToastificationType.custom(
+          'Kindly register first or login in with email and pin if already registered.',
+          Colors.red,
+          Icons.error_rounded),
+      style: ToastificationStyle.flatColored,
+    );
   }
 
   //login button using email and pin/password
@@ -232,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
           color: Theme.of(context).colorScheme.primaryContainer,
         ),
         child: TextButton(
-          onPressed: () {},
+          onPressed: redirectToHome,
           child: Text(
             'Login now',
             style: Theme.of(context).textTheme.displayMedium!.copyWith(
@@ -245,10 +297,84 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // cached data
-  void cachedData(BuildContext context) {
-    // getting pushed data from register page
-    passedData = passedData.isEmpty
-        ? ModalRoute.of(context)!.settings.arguments as Map
-        : passedData;
+  Future<void> cachedData() async {
+    // saving data to shared preferences
+    if (emailController!.text.isNotEmpty && pinController!.text.isNotEmpty) {
+      // if the cached data is empty and data is available
+      final userControl = UserControl();
+      final confirmed = await userControl.confirmUser(
+          emailController!.text, int.parse(pinController!.text));
+
+      if (confirmed == true) {
+        sharedPrefs.setString('email', emailController!.text);
+        sharedPrefs.setInt('pin', int.parse(pinController!.text));
+      } else {
+        incorrectCredentials();
+      }
+    } else {
+      developer.log('Shared preferences is empty. => $sharedPrefs');
+      toastification.show(
+        style: ToastificationStyle.simple,
+        description: const Text('Unable to get store persistent data'),
+      );
+    }
+
+    // set preferences to map variable
+    setState(() {
+      cachedMap['email'] = sharedPrefs.getString('email');
+      cachedMap['pin'] = sharedPrefs.getInt('pin');
+
+      print(cachedMap);
+      isCached = true;
+      canFingerPrint = true;
+    });
+  }
+
+  // redirect to home page after login
+  void redirectToHome() async {
+    if (emailController!.text.isNotEmpty && pinController!.text.isNotEmpty) {
+      await cachedData();
+
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: emailController!.text,
+        password: pinController!.text,
+      );
+      homeNavigate();
+    } else if (canFingerPrint == true) {
+      loginWithBiometrics();
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: cachedMap['email'],
+        password: cachedMap['pin'].toString(),
+      );
+      Future.delayed(const Duration(seconds: 2), () {
+        toastification.show(
+            style: ToastificationStyle.flatColored,
+            type: const ToastificationType.custom(
+                'Login successful', Colors.blue, Icons.check_circle_rounded));
+      });
+      homeNavigate();
+    } else {
+      incorrectCredentials();
+      print(cachedMap);
+    }
+  }
+
+  // incorrect credentials
+  void incorrectCredentials() {
+    toastification.show(
+      autoCloseDuration: const Duration(seconds: 3),
+      alignment: Alignment.bottomCenter,
+      style: ToastificationStyle.flatColored,
+      title: const Text('Incorrect details'),
+      type: const ToastificationType.custom(
+        'Incorrect credentials',
+        Colors.red,
+        Icons.error_rounded,
+      ),
+    );
+  }
+
+  void homeNavigate() {
+    Navigator.popAndPushNamed(context, '/');
   }
 }
