@@ -28,6 +28,12 @@ Other features are:
 | ----- | ----- |
 ![Register-dark](images/register-dark-theme.png) | ![Register-light](images/register-light-theme.png)
 
+3. *Dashboard responsive UI*
+
+|Portrait | Landscape|
+| ---- | ---- |
+![Dashboard-portrait](images/dashboard.png) | ![Dashboard-landscape](images/dashboard-responsive.png)
+
 3. *Account details*
 
 ![Account-Details](images/account-detail.png)
@@ -36,10 +42,10 @@ Other features are:
 
 ![Supabase-control](images/supabase-authentication.png)
 
-5. *Transaction charts*
+5. *Transaction charts responsive UI*
 
-![Chart-summary](images/chart.png)
+| Portrait | Landscape |
+|----| ----|
+![Chart-summary](images/chart.png) | ![Chart-summary-landscape](images/chart-responsive.png)
 
-6. *Responsive UI*
 
-[![Responsive](images/chart.png)](video/responsive.gif)
