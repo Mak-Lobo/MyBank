@@ -100,14 +100,14 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
           textTheme: textTheme,
         ),
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.system,
         routes: {
           '/': (context) => const MainView(),
           'login': (context) => const LoginPage(),
           'register': (context) => const RegisterPage(),
           'chart': (context) => const SummaryCharts(),
         },
-        initialRoute: '/',
+        initialRoute: 'login',
       ),
     );
   }

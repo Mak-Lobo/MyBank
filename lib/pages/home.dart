@@ -39,8 +39,17 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 accountBalance(),
+                const SizedBox(
+                  height: 20,
+                ),
                 cardCarousel(),
+                const SizedBox(
+                  height: 20,
+                ),
                 moneyTransactionButtons(),
+                const SizedBox(
+                  height: 20,
+                ),
                 accountSection()
               ],
             ),

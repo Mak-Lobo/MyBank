@@ -33,7 +33,7 @@ class SummaryCharts extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 40),
                 lineChart(context),
                 const SizedBox(height: 25),
                 barChart(context),

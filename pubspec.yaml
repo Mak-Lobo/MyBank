@@ -74,6 +74,7 @@ flutter:
   assets:
     - images/
     - configurations/main.json
+    - video/
 
   fonts:
     - family: Poppins

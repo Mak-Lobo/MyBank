@@ -1,0 +1,2 @@
+/home/mark/Personal Projects/MyBank/android/app/.cxx/RelWithDebInfo/4h1j1r4z/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/mark/Personal Projects/MyBank/android/app/.cxx/RelWithDebInfo/4h1j1r4z/arm64-v8a/CMakeFiles/rebuild_cache.dir

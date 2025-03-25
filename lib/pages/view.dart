@@ -3,6 +3,11 @@ import 'package:my_bank/pages/account.dart';
 import 'package:my_bank/pages/discover.dart';
 import 'package:my_bank/pages/home.dart';
 
+import '../service_control/user_control.dart';
+import '../models/users_register.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get_it/get_it.dart';
+
 class MainView extends StatefulWidget {
   const MainView({super.key});
 
@@ -17,11 +22,32 @@ class _MainViewState extends State<MainView> {
     AccountPage(),
     DiscoverPage(),
   ];
+  final userControl = GetIt.instance.get<UserControl>();
+  Map<String, dynamic> accountDetails = {};
 
   int page = 0;
 
   // page controller
   final pageController = PageController(initialPage: 0);
+
+  Future<void> fetchAccountDetails() async {
+    final User? currentUser = Supabase.instance.client.auth.currentUser;
+
+    if (currentUser != null) {
+      final fetchedProfile =
+          await userControl.getCurrentUserData(currentUser.email.toString());
+
+      setState(() {
+        accountDetails = fetchedProfile;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAccountDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +56,7 @@ class _MainViewState extends State<MainView> {
         appBar: page == 0
             ? AppBar(
                 title: Text(
-                  "Welcome",
+                  "Welcome, ${accountDetails['first_name']}",
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
