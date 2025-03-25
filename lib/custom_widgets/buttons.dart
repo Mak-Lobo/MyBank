@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final dynamic icon;
   final String textFeature;
+  final VoidCallback? onPressed;
 
   const CustomButton(
-      {super.key, required this.icon, required this.textFeature});
+      {super.key, required this.icon, required this.textFeature, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class CustomButton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: onPressed,
             icon: icon,
             color: Theme.of(context).colorScheme.primary,
             iconSize: 30,

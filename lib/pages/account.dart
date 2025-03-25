@@ -38,22 +38,43 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Text('Profile details', style: Theme.of(context).textTheme.titleLarge),
-        accountBox(),
-        logOutButton(),
-      ],
-    );
+    bool isOrientationLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return (!isOrientationLandscape)
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text('Profile details',
+                  style: Theme.of(context).textTheme.titleLarge),
+              accountBox(context),
+              logOutButton(),
+            ],
+          )
+        : SingleChildScrollView(
+            child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              Text('Profile details',
+                  style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 40),
+              accountBox(context),
+              const SizedBox(
+                height: 20,
+              ),
+              logOutButton(),
+            ],
+          ));
   }
 
   // account form
-  Widget accountBox() {
+  Widget accountBox(BuildContext context) {
     height = MediaQuery.of(context).size.height;
+    bool isOrientationLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     return Container(
-      height: height! * 0.5,
+      height: (isOrientationLandscape) ? null : height! * 0.5,
       padding: const EdgeInsets.all(15),
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(

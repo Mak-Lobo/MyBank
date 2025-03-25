@@ -1,4 +1,4 @@
-class UserTranscations {
+class UserTransactions {
   final String id;
   final String email;
   DateTime createdAt;
@@ -6,7 +6,7 @@ class UserTranscations {
   final String purpose;
   num accountBalance;
 
-  UserTranscations({
+  UserTransactions({
     required this.id,
     required this.email,
     required this.createdAt,
@@ -16,14 +16,14 @@ class UserTranscations {
   });
 
   // UserTranscations object from map
-  factory UserTranscations.fromMap(Map<String, dynamic> mapRegistered) {
-    return UserTranscations(
+  factory UserTransactions.fromMap(Map<String, dynamic> mapRegistered) {
+    return UserTransactions(
       id: mapRegistered['id'],
       email: mapRegistered['email'],
       createdAt: DateTime.parse(mapRegistered['created_at']),
       amount: mapRegistered['amount'],
       purpose: mapRegistered['purpose'],
-      accountBalance: mapRegistered['account_balance'],  
+      accountBalance: mapRegistered['account_balance'],
     );
   }
 
@@ -38,4 +38,14 @@ class UserTranscations {
       'account_balance': accountBalance,
     };
   }
+}
+
+// sample transactions
+class SampleTransactions {
+  final double yData;
+  final String xData;
+  final double yData2;
+
+  SampleTransactions({required this.xData, required this.yData, double? yData2})
+      : yData2 = yData2 ?? 0; // Ensure yData2 is always a number
 }

@@ -30,16 +30,31 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        accountBalance(),
-        cardCarousel(),
-        moneyTransactionButtons(),
-        accountSection()
-      ],
-    );
+    bool isOrietationLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return (isOrietationLandscape)
+        ? SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                accountBalance(),
+                cardCarousel(),
+                moneyTransactionButtons(),
+                accountSection()
+              ],
+            ),
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              accountBalance(),
+              cardCarousel(),
+              moneyTransactionButtons(),
+              accountSection()
+            ],
+          );
   }
 
   // account balance view
@@ -110,6 +125,7 @@ class _HomePageState extends State<HomePage> {
           autoPlayAnimationDuration: const Duration(milliseconds: 750),
           autoPlayCurve: Curves.fastEaseInToSlowEaseOut,
           autoPlayInterval: const Duration(seconds: 3),
+          enlargeCenterPage: true,
         ),
       ),
     );
@@ -128,23 +144,26 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: const Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CustomButton(
+            const CustomButton(
               icon: Icon(Icons.send_rounded),
               textFeature: 'Send money',
             ),
             CustomButton(
-              icon: Icon(Icons.show_chart_rounded),
+              onPressed: () {
+                Navigator.pushNamed(context, 'chart');
+              },
+              icon: const Icon(Icons.show_chart_rounded),
               textFeature: 'Transaction charts',
             ),
-            CustomButton(
+            const CustomButton(
               icon: Icon(Icons.payments_rounded),
               textFeature: 'Pay bills',
             ),
-            CustomButton(
+            const CustomButton(
               icon: Icon(Icons.send_to_mobile),
               textFeature: 'Mobile money',
             ),

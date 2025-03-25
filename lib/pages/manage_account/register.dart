@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../service_control/user_control.dart';
 import 'package:get_it/get_it.dart';
@@ -357,7 +358,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
         Navigator.pushReplacementNamed(context, 'login');
       } on AuthException catch (e) {
-        SnackBar(content: Text('${e.message}\nTry again to register.'));
+        toastification.show(
+          style: ToastificationStyle.simple,
+          description: Text('${e.message}\nTry again to register.'),
+        );
       }
     }
   }

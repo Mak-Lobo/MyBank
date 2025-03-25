@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_bank/pages/chart.dart';
 import 'package:toastification/toastification.dart';
 
 import 'package:my_bank/pages/view.dart';
@@ -40,35 +41,42 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   final textTheme = const TextTheme(
-      titleLarge: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
-        fontFamily: 'Poppins',
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 14.0,
-        fontFamily: 'Poppins',
-      ),
-      bodySmall: TextStyle(
-        fontSize: 12.5,
-        fontWeight: FontWeight.w300,
-        fontFamily: 'Poppins',
-      ),
-      displayMedium: TextStyle(
-        fontSize: 14.5,
-        fontWeight: FontWeight.w600,
-        fontFamily: 'Poppins',
-      ),
-      displaySmall: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        fontFamily: 'Poppins',
-      ),
-      labelSmall: TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w400,
-        fontFamily: 'Poppins',
-      ));
+    titleLarge: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 14.0,
+      fontFamily: 'Poppins',
+    ),
+    bodySmall: TextStyle(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w300,
+      fontFamily: 'Poppins',
+    ),
+    displayMedium: TextStyle(
+      fontSize: 14.5,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+    ),
+    displaySmall: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      fontFamily: 'Poppins',
+    ),
+    labelSmall: TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      fontFamily: 'Poppins',
+    ),
+    titleMedium: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      letterSpacing: 0.15,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -92,13 +100,14 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
           textTheme: textTheme,
         ),
-        themeMode: ThemeMode.dark,
+        themeMode: ThemeMode.light,
         routes: {
           '/': (context) => const MainView(),
           'login': (context) => const LoginPage(),
           'register': (context) => const RegisterPage(),
+          'chart': (context) => const SummaryCharts(),
         },
-        initialRoute: 'login',
+        initialRoute: '/',
       ),
     );
   }
